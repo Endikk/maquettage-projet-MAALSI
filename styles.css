@@ -1,0 +1,81 @@
+/* Reset de base pour une meilleure compatibilité */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f7;
+    color: #333;
+    min-height: 100vh;
+}
+
+/* Sidebar avec un style moderne */
+.sidebar {
+    width: 220px;
+    background-color: #2b3a4a;
+    color: #f4f4f4;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h2 {
+    font-size: 1.4em;
+    margin-bottom: 10px;
+    color: #e3e8ee;
+    border-bottom: 1px solid #4a5a6a;
+    padding-bottom: 8px;
+}
+
+/* Boutons avec des styles modernisés */
+.sidebar button {
+    background-color: #556a7f;
+    color: #f4f4f4;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    font-size: 1em;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.sidebar button:hover {
+    background-color: #7892ac;
+    transform: translateY(-2px);
+}
+
+/* Style de la zone de maquette */
+.canvas {
+    flex: 1;
+    padding: 30px;
+    background-color: #f9fafb;
+    min-height: 100vh;
+    border-left: 2px solid #dfe2e7;
+}
+
+.canvas h2 {
+    font-size: 1.6em;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+/* Style pour les éléments ajoutés */
+.element {
+    margin: 15px 0;
+    padding: 15px;
+    border: 1px solid #e0e4e8;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.element:hover {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
