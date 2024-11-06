@@ -174,7 +174,6 @@ function extractYouTubeId(url) {
   return match ? match[1] : null;
 }
 
-  
   // Fonction pour ajouter la géolocalisation
   function addLocation() {
     if (navigator.geolocation) {
@@ -190,6 +189,85 @@ function extractYouTubeId(url) {
       alert("La géolocalisation n'est pas supportée par ce navigateur.");
     }
   }
+
+// Fonction pour exporter la maquette en PDF
+function addExportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const videoElements = document.querySelectorAll('#canvas video');
+  
+  html2canvas(document.getElementById('canvas')).then(async (canvas) => {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 190;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // Ajouter l'image du canvas au PDF
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+
+    // Pour chaque vidéo, ajouter un aperçu dans le PDF
+    for (let video of videoElements) {
+      try {
+        const videoPreview = await captureVideoPreview(video);
+        const rect = video.getBoundingClientRect();
+        const pdfX = rect.left * 0.2646;  // Conversion en mm
+        const pdfY = rect.top * 0.2646;   // Conversion en mm
+        const previewWidth = rect.width * 0.2646;
+        const previewHeight = rect.height * 0.2646;
+
+        pdf.addImage(videoPreview, 'PNG', 10 + pdfX, 10 + pdfY, previewWidth, previewHeight);
+      } catch (error) {
+        console.error("Erreur lors de la capture de l'aperçu vidéo :", error);
+      }
+    }
+
+    pdf.save('maquette.pdf');
+  });
+}
+
+async function AddExportToHTMLAndCSS() {
+  try {
+      // Récupérer le contenu HTML et CSS
+      const htmlContent = document.documentElement.outerHTML;
+      const cssContent = Array.from(document.styleSheets)
+          .map(styleSheet => {
+              try {
+                  return Array.from(styleSheet.cssRules)
+                      .map(rule => rule.cssText)
+                      .join('\n');
+              } catch (e) {
+                  console.warn('Impossible de lire les règles CSS:', e);
+                  return '';
+              }
+          })
+          .join('\n');
+
+      // Créer un nouvel objet JSZip
+      const zip = new JSZip();
+
+      // Ajouter les fichiers HTML et CSS au ZIP
+      zip.file("page.html", htmlContent);
+      zip.file("styles.css", cssContent);
+
+      // Générer le fichier ZIP
+      const zipContent = await zip.generateAsync({ type: "blob" });
+
+      // Créer un lien de téléchargement
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(zipContent);
+      downloadLink.download = "export.zip";
+
+      // Déclencher le téléchargement
+      downloadLink.click();
+
+      // Nettoyer l'URL
+      URL.revokeObjectURL(downloadLink.href);
+  } catch (error) {
+      console.error("Erreur lors de l'export:", error);
+  }
+}
+
+// Ajouter l'événement au bouton
+document.getElementById('AddExportToHTMLAndCSS').addEventListener('click', AddExportToHTMLAndCSS);
 
 // Fonction pour créer la toolbar de modification
 function createEditToolbar(element) {
@@ -246,6 +324,25 @@ function createEditToolbar(element) {
     fontSelect.onchange = (e) => element.style.fontFamily = e.target.value;
     toolbar.appendChild(fontSelect);
   }
+  // Bouton d'animation
+  const animationButton = document.createElement('button');
+  animationButton.innerText = '🎞️ Animation';
+  animationButton.onclick = () => {
+    // Choisir une animation au hasard (ou vous pouvez ajouter un sélecteur)
+    const animations = ['animate-bounce', 'animate-rotate', 'animate-pulse'];
+    const currentAnimation = element.dataset.animation;
+
+    // Retire l'animation actuelle si elle existe
+    if (currentAnimation) {
+      element.classList.remove(currentAnimation);
+    }
+
+    // Applique une nouvelle animation
+    const newAnimation = animations[Math.floor(Math.random() * animations.length)];
+    element.classList.add(newAnimation);
+    element.dataset.animation = newAnimation;  // Stocke le nom de l'animation
+  };
+  toolbar.appendChild(animationButton);
 
   // Bouton de suppression pour tous les éléments
   const deleteButton = document.createElement('button');
