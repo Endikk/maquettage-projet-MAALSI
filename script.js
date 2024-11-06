@@ -254,3 +254,36 @@ function makeElementDraggable(element) {
     return false;
   };
 }
+
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const videoElements = document.querySelectorAll('#canvas video');
+  
+  html2canvas(document.getElementById('canvas')).then(async (canvas) => {
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgData = canvas.toDataURL('image/png');
+    const imgWidth = 190;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // Ajouter l'image du canvas au PDF
+    pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+
+    // Pour chaque vidéo, ajouter un aperçu dans le PDF
+    for (let video of videoElements) {
+      try {
+        const videoPreview = await captureVideoPreview(video);
+        const rect = video.getBoundingClientRect();
+        const pdfX = rect.left * 0.2646;  // Conversion en mm
+        const pdfY = rect.top * 0.2646;   // Conversion en mm
+        const previewWidth = rect.width * 0.2646;
+        const previewHeight = rect.height * 0.2646;
+
+        pdf.addImage(videoPreview, 'PNG', 10 + pdfX, 10 + pdfY, previewWidth, previewHeight);
+      } catch (error) {
+        console.error("Erreur lors de la capture de l'aperçu vidéo :", error);
+      }
+    }
+
+    pdf.save('maquette.pdf');
+  });
+}
