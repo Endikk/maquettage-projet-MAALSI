@@ -36,7 +36,7 @@ Un outil de maquettage web interactif permettant de créer rapidement des protot
 
 ## Technologies utilisées
 
-- HTM
+- HTML
 - CSS3
 - JavaScript
 - Bibliothèques :

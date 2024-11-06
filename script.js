@@ -226,44 +226,151 @@ function addExportToPDF() {
 
 async function AddExportToHTMLAndCSS() {
   try {
-      // Récupérer le contenu HTML et CSS
-      const htmlContent = document.documentElement.outerHTML;
-      const cssContent = Array.from(document.styleSheets)
-          .map(styleSheet => {
-              try {
-                  return Array.from(styleSheet.cssRules)
-                      .map(rule => rule.cssText)
-                      .join('\n');
-              } catch (e) {
-                  console.warn('Impossible de lire les règles CSS:', e);
-                  return '';
-              }
-          })
-          .join('\n');
+    // Récupérer uniquement le contenu du canvas
+    const canvas = document.getElementById('canvas');
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Maquette exportée</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    ${canvas.outerHTML}
+</body>
+</html>`;
 
-      // Créer un nouvel objet JSZip
-      const zip = new JSZip();
+    // Récupérer uniquement les styles pertinents
+    const relevantStyles = Array.from(document.styleSheets)
+      .map(styleSheet => {
+        try {
+          return Array.from(styleSheet.cssRules)
+            .filter(rule => {
+              // Filtrer les règles CSS pour exclure celles liées à la barre d'outils
+              const selector = rule.selectorText || '';
+              return !selector.includes('toolbar') && 
+                     !selector.includes('sidebar') &&
+                     !selector.includes('menu');
+            })
+            .map(rule => rule.cssText)
+            .join('\n');
+        } catch (e) {
+          console.warn('Impossible de lire les règles CSS:', e);
+          return '';
+        }
+      })
+      .join('\n');
 
-      // Ajouter les fichiers HTML et CSS au ZIP
-      zip.file("page.html", htmlContent);
-      zip.file("styles.css", cssContent);
+    // Créer un nouvel objet JSZip
+    const zip = new JSZip();
 
-      // Générer le fichier ZIP
-      const zipContent = await zip.generateAsync({ type: "blob" });
+    // Ajouter les fichiers HTML et CSS au ZIP
+    zip.file("page.html", htmlContent);
+    zip.file("styles.css", relevantStyles);
 
-      // Créer un lien de téléchargement
-      const downloadLink = document.createElement('a');
-      downloadLink.href = URL.createObjectURL(zipContent);
-      downloadLink.download = "export.zip";
-
-      // Déclencher le téléchargement
-      downloadLink.click();
-
-      // Nettoyer l'URL
-      URL.revokeObjectURL(downloadLink.href);
+    // Générer et télécharger le ZIP
+    const zipContent = await zip.generateAsync({ type: "blob" });
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(zipContent);
+    downloadLink.download = "export.zip";
+    downloadLink.click();
+    URL.revokeObjectURL(downloadLink.href);
   } catch (error) {
-      console.error("Erreur lors de l'export:", error);
+    console.error("Erreur lors de l'export:", error);
   }
+}
+
+function AddFormulaire() {
+  const canvas = document.getElementById("canvas");
+  const form = document.createElement("form");
+  form.classList.add("element");
+  
+  // Style de base pour le formulaire
+  form.style.padding = "20px";
+  form.style.backgroundColor = "#f5f5f5";
+  form.style.borderRadius = "8px";
+  form.style.width = "300px";
+  
+  // Création du titre prédéfini
+  const title = document.createElement("h3");
+  title.textContent = "Formulaire de contact";
+  title.style.marginBottom = "15px";
+  
+  // Création du champ email
+  const emailDiv = document.createElement("div");
+  emailDiv.style.marginBottom = "15px";
+  
+  const emailLabel = document.createElement("label");
+  emailLabel.textContent = "Email :";
+  emailLabel.style.display = "block";
+  emailLabel.style.marginBottom = "5px";
+  
+  const emailInput = document.createElement("input");
+  emailInput.type = "email";
+  emailInput.required = true;
+  emailInput.placeholder = "exemple@email.com";
+  emailInput.style.width = "100%";
+  emailInput.style.padding = "8px";
+  emailInput.style.borderRadius = "4px";
+  emailInput.style.border = "1px solid #ddd";
+  
+  // Création du bouton d'envoi
+  const submitButton = document.createElement("button");
+  submitButton.type = "submit";
+  submitButton.textContent = "Envoyer";
+  submitButton.style.backgroundColor = "#4CAF50";
+  submitButton.style.color = "white";
+  submitButton.style.padding = "10px 20px";
+  submitButton.style.border = "none";
+  submitButton.style.borderRadius = "4px";
+  submitButton.style.cursor = "pointer";
+  
+  // Assemblage du formulaire
+  emailDiv.appendChild(emailLabel);
+  emailDiv.appendChild(emailInput);
+  form.appendChild(title);
+  form.appendChild(emailDiv);
+  form.appendChild(submitButton);
+  
+  // Gestion de la soumission du formulaire avec création du JSON
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const formData = {
+      type: "contact_form",
+      timestamp: new Date().toISOString(),
+      data: {
+        email: emailInput.value
+      }
+    };
+
+    // Convertir en JSON
+    const jsonData = JSON.stringify(formData, null, 2);
+    
+    // Pour cet exemple, on affiche le JSON dans la console
+    console.log('Données du formulaire:', jsonData);
+
+    // Option 1: Sauvegarder dans le localStorage
+    const savedForms = JSON.parse(localStorage.getItem('formSubmissions') || '[]');
+    savedForms.push(formData);
+    localStorage.setItem('formSubmissions', JSON.stringify(savedForms));
+
+    // Option 2: Télécharger le JSON comme fichier
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `form_submission_${new Date().getTime()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Afficher une confirmation
+    alert(`Formulaire soumis avec l'email : ${emailInput.value}\nLes données ont été sauvegardées en JSON`);
+  };
+  
+  // Ajout au canvas et rendre déplaçable
+  canvas.appendChild(form);
+  makeElementDraggable(form);
 }
 
 // Ajouter l'événement au bouton
