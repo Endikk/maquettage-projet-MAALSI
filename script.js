@@ -145,50 +145,93 @@ function addLocation() {
 
 // Copiez ici le reste de votre code existant...
 
+// Fonction d'export pour générer un fichier HTML/CSS à partir de la maquette
 function exportToHTML() {
-  const canvas = document.getElementById('canvas');
-  let htmlContent = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Maquette Exportée</title><link rel="stylesheet" href="export.css"></head><body><div class="canvas">\n';
-  let cssContent = `/* Styles générés pour la maquette exportée */\n\n.canvas {\n  width: 80vw;\n  height: 60vh;\n  position: relative;\n  background-color: #fff;\n  border: 2px dashed #ccc;\n  overflow: hidden;\n}\n\n`;
+  const canvas = document.getElementById("canvas");
+  const elements = canvas.querySelectorAll(".element");
 
-  // Parcourir chaque élément de la maquette
-  Array.from(canvas.children).forEach((element, index) => {
-    const tagName = element.tagName.toLowerCase();
-    const elementClass = `element-${index}`;
-
-    // HTML pour l'élément
-    if (tagName === 'input' && element.type === 'text') {
-      htmlContent += `<input type="text" class="${elementClass}" placeholder="${element.placeholder}">\n`;
-    } else if (tagName === 'button') {
-      htmlContent += `<button class="${elementClass}">${element.innerText}</button>\n`;
-    } else if (tagName === 'img') {
-      htmlContent += `<img src="${element.src}" alt="${element.alt}" class="${elementClass}">\n`;
-    } else if (tagName === 'iframe') {
-      htmlContent += `<iframe src="${element.src}" class="${elementClass}" allow="${element.allow}"></iframe>\n`;
-    } else {
-      htmlContent += `<div class="${elementClass}">${element.innerHTML}</div>\n`;
+  // Rassemble les styles en CSS pour chaque élément
+  let cssContent = `
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f4f4f4;
+      height: 100vh;
+      margin: 0;
+    }
+    .canvas {
+      width: 80vw;
+      height: 60vh;
+      position: relative;
+      border: 2px dashed #ccc;
+      background-color: #fff;
+      overflow: hidden;
+    }
+    .element {
+      position: absolute;
+      transition: transform 0.2s ease;
+      cursor: move;
+    }
+  `;
 
-    // CSS pour l'élément
-    const styles = window.getComputedStyle(element);
-    cssContent += `.${elementClass} {\n  position: absolute;\n  left: ${styles.left};\n  top: ${styles.top};\n`;
-    cssContent += `  width: ${styles.width};\n  height: ${styles.height};\n  font-size: ${styles.fontSize};\n  color: ${styles.color};\n  background-color: ${styles.backgroundColor};\n`;
-    if (tagName === 'img' || tagName === 'iframe') cssContent += `  display: inline-block;\n`;
-    cssContent += '}\n\n';
+  // Stocke le contenu HTML pour les éléments de la maquette
+  let htmlContent = `<div class="canvas">\n`;
+
+  elements.forEach((element, index) => {
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+
+    // Génère le style CSS pour chaque élément avec sa position et ses propriétés
+    cssContent += `
+      .element-${index} {
+        left: ${rect.left}px;
+        top: ${rect.top}px;
+        width: ${computedStyle.width};
+        height: ${computedStyle.height};
+        background-color: ${computedStyle.backgroundColor || "transparent"};
+        font-size: ${computedStyle.fontSize || "inherit"};
+        color: ${computedStyle.color || "inherit"};
+      }
+    `;
+
+    // Ajoute l'élément HTML avec une classe unique
+    const clonedElement = element.cloneNode(true);
+    clonedElement.classList.add(`element-${index}`);
+    clonedElement.classList.remove("element");
+    htmlContent += `  ${clonedElement.outerHTML}\n`;
   });
 
-  htmlContent += '</div></body></html>';
+  htmlContent += `</div>`;
 
-  // Créer et télécharger les fichiers HTML et CSS
-  downloadFile('export.html', htmlContent);
-  downloadFile('export.css', cssContent);
-}
+  // Construit le contenu complet du fichier HTML avec le CSS intégré
+  const fullHTML = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maquette Exportée</title>
+  <style>
+    ${cssContent}
+  </style>
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>
+  `;
 
-// Fonction utilitaire pour télécharger un fichier
-function downloadFile(filename, content) {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const link = document.createElement('a');
+  // Création du fichier téléchargeable
+  const blob = new Blob([fullHTML], { type: "text/html" });
+  const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = filename;
+  link.download = "maquette_exportée.html";
   link.click();
-  URL.revokeObjectURL(link.href);
 }
