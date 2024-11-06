@@ -141,39 +141,78 @@ function addLocation() {
   }
 }
 
-// Fonction pour exporter le HTML et le CSS
-function exportHTMLAndCSS() {
-  const elements = document.querySelectorAll(".element");
-  let htmlContent = '';
-  let cssContent = '';
+// Copiez ici le reste de votre code existant...
 
-  elements.forEach(element => {
-    htmlContent += element.outerHTML + '\n';
+// Fonction d'export pour générer un fichier HTML/CSS à partir de la maquette
+function exportToHTML() {
+  const canvas = document.getElementById("canvas");
+  const elements = canvas.querySelectorAll(".element");
 
-    const styles = window.getComputedStyle(element);
-    let cssText = '';
-    for (let i = 0; i < styles.length; i++) {
-      const styleName = styles[i];
-      const styleValue = styles.getPropertyValue(styleName);
-      cssText += `${styleName}: ${styleValue};\n`;
+  // Rassemble les styles en CSS pour chaque élément
+  let cssContent = `
+    .canvas {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background-color: #f4f4f4;
     }
+    .element {
+      position: absolute;
+      transition: transform 0.2s ease;
+    }
+  `;
 
-    cssContent += `.${element.className} {\n${cssText}}\n`;
+  // Stocke le contenu HTML pour les éléments de la maquette
+  let htmlContent = `<div class="canvas">\n`;
+
+  elements.forEach((element, index) => {
+    const rect = element.getBoundingClientRect();
+    const computedStyle = window.getComputedStyle(element);
+
+    // Génère le style CSS pour chaque élément avec sa position et ses propriétés
+    cssContent += `
+      .element-${index} {
+        left: ${rect.left}px;
+        top: ${rect.top}px;
+        width: ${computedStyle.width};
+        height: ${computedStyle.height};
+        background-color: ${computedStyle.backgroundColor || "transparent"};
+        font-size: ${computedStyle.fontSize || "inherit"};
+      }
+    `;
+
+    // Ajoute l'élément HTML avec sa classe unique
+    const clonedElement = element.cloneNode(true);
+    clonedElement.classList.add(`element-${index}`);
+    clonedElement.classList.remove("element");
+    htmlContent += `  ${clonedElement.outerHTML}\n`;
   });
 
-  const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-  const cssBlob = new Blob([cssContent], { type: 'text/css' });
+  htmlContent += `</div>`;
 
-  const htmlUrl = URL.createObjectURL(htmlBlob);
-  const cssUrl = URL.createObjectURL(cssBlob);
+  // Construit le contenu complet du fichier HTML
+  const fullHTML = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maquette Exportée</title>
+  <style>
+    ${cssContent}
+  </style>
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>
+  `;
 
-  const htmlLink = document.createElement('a');
-  htmlLink.href = htmlUrl;
-  htmlLink.download = 'elements.html';
-  htmlLink.click();
-
-  const cssLink = document.createElement('a');
-  cssLink.href = cssUrl;
-  cssLink.download = 'styles.css';
-  cssLink.click();
+  // Création du fichier téléchargeable
+  const blob = new Blob([fullHTML], { type: "text/html" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "maquette_exportée.html";
+  link.click();
 }
