@@ -98,3 +98,38 @@ body {
     cursor: pointer;
     padding: 2px 5px;
   }
+
+    /* Animation de rebond */
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-20px); }
+        60% { transform: translateY(-10px); }
+    }
+    
+    /* Animation de rotation */
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Animation de pulsation */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    /* Classe pour l'animation de rebond */
+    .animate-bounce {
+        animation: bounce 1s ease infinite;
+    }
+    
+    /* Classe pour l'animation de rotation */
+    .animate-rotate {
+        animation: rotate 1s linear infinite;
+    }
+    
+    /* Classe pour l'animation de pulsation */
+    .animate-pulse {
+        animation: pulse 1s ease infinite;
+    }

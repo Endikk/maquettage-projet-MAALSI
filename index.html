@@ -15,16 +15,17 @@
     <button onclick="addImage()">Ajouter une image</button>
     <button onclick="addVideo()">Ajouter une vidéo</button>
     <button onclick="addLocation()">Ajouter la géolocalisation</button>
-    <button onclick="exportToPDF()">Exporter en PDF</button>
+    <button onclick="addExportToPDF()">Exporter en PDF</button>
+    <button onclick="AddExportToHTMLAndCSS()">Exporter en HTML et CSS</button>
   </div>
 
   <div class="canvas" id="canvas">
     <h2>Zone de Maquette</h2>
     <!-- Les éléments ajoutés apparaîtront ici -->
   </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
