@@ -139,57 +139,79 @@ function extractYouTubeId(url) {
     }
   }
 
-// Fonction pour créer la toolbar de modification
-function createEditToolbar(element) {
-  const toolbar = document.createElement('div');
-  toolbar.classList.add('edit-toolbar');
-  toolbar.style.display = 'none';
-
-  // Boutons de la toolbar selon le type d'élément
-  if (element.tagName === 'BUTTON') {
-    // Couleur
-    const colorPicker = document.createElement('input');
-    colorPicker.type = 'color';
-    colorPicker.value = element.style.backgroundColor;
-    colorPicker.onchange = (e) => element.style.backgroundColor = e.target.value;
-    toolbar.appendChild(colorPicker);
-
-    // Taille du texte
-    const fontSizeInput = document.createElement('input');
-    fontSizeInput.type = 'number';
-    fontSizeInput.min = '8';
-    fontSizeInput.max = '72';
-    fontSizeInput.value = parseInt(window.getComputedStyle(element).fontSize);
-    fontSizeInput.onchange = (e) => element.style.fontSize = e.target.value + 'px';
-    toolbar.appendChild(fontSizeInput);
-  } else if (element.tagName === 'IMG') {
-    // Largeur
-    const widthInput = document.createElement('input');
-    widthInput.type = 'number';
-    widthInput.min = '50';
-    widthInput.max = '800';
-    widthInput.value = parseInt(element.style.width);
-    widthInput.onchange = (e) => element.style.width = e.target.value + 'px';
-    toolbar.appendChild(widthInput);
-  } else if (element.tagName === 'INPUT') {
-    // Taille du texte pour les champs de texte
-    const fontSizeInput = document.createElement('input');
-    fontSizeInput.type = 'number';
-    fontSizeInput.min = '8';
-    fontSizeInput.max = '72';
-    fontSizeInput.value = parseInt(window.getComputedStyle(element).fontSize);
-    fontSizeInput.onchange = (e) => element.style.fontSize = e.target.value + 'px';
-    toolbar.appendChild(fontSizeInput);
+  function createEditToolbar(element) {
+    const toolbar = document.createElement('div');
+    toolbar.classList.add('edit-toolbar');
+    toolbar.style.display = 'none';
+  
+    // Boutons de la toolbar selon le type d'élément
+    if (element.tagName === 'BUTTON') {
+      // Couleur
+      const colorPicker = document.createElement('input');
+      colorPicker.type = 'color';
+      colorPicker.value = element.style.backgroundColor;
+      colorPicker.onchange = (e) => element.style.backgroundColor = e.target.value;
+      toolbar.appendChild(colorPicker);
+  
+      // Taille du texte
+      const fontSizeInput = document.createElement('input');
+      fontSizeInput.type = 'number';
+      fontSizeInput.min = '8';
+      fontSizeInput.max = '72';
+      fontSizeInput.value = parseInt(window.getComputedStyle(element).fontSize);
+      fontSizeInput.onchange = (e) => element.style.fontSize = e.target.value + 'px';
+      toolbar.appendChild(fontSizeInput);
+    } else if (element.tagName === 'IMG') {
+      // Largeur
+      const widthInput = document.createElement('input');
+      widthInput.type = 'number';
+      widthInput.min = '50';
+      widthInput.max = '800';
+      widthInput.value = parseInt(element.style.width);
+      widthInput.onchange = (e) => element.style.width = e.target.value + 'px';
+      toolbar.appendChild(widthInput);
+    } else if (element.tagName === 'INPUT') {
+      // Taille du texte pour les champs de texte
+      const fontSizeInput = document.createElement('input');
+      fontSizeInput.type = 'number';
+      fontSizeInput.min = '8';
+      fontSizeInput.max = '72';
+      fontSizeInput.value = parseInt(window.getComputedStyle(element).fontSize);
+      fontSizeInput.onchange = (e) => element.style.fontSize = e.target.value + 'px';
+      toolbar.appendChild(fontSizeInput);
+    }
+  
+    // Bouton d'animation
+    const animationButton = document.createElement('button');
+    animationButton.innerText = '🎞️ Animation';
+    animationButton.onclick = () => {
+      // Choisir une animation au hasard (ou vous pouvez ajouter un sélecteur)
+      const animations = ['animate-bounce', 'animate-rotate', 'animate-pulse'];
+      const currentAnimation = element.dataset.animation;
+  
+      // Retire l'animation actuelle si elle existe
+      if (currentAnimation) {
+        element.classList.remove(currentAnimation);
+      }
+  
+      // Applique une nouvelle animation
+      const newAnimation = animations[Math.floor(Math.random() * animations.length)];
+      element.classList.add(newAnimation);
+      element.dataset.animation = newAnimation;  // Stocke le nom de l'animation
+    };
+    toolbar.appendChild(animationButton);
+  
+    // Bouton de suppression pour tous les éléments
+    const deleteButton = document.createElement('button');
+    deleteButton.innerText = '🗑️';
+    deleteButton.onclick = () => element.remove();
+    toolbar.appendChild(deleteButton);
+  
+    return toolbar;
   }
-
-  // Bouton de suppression pour tous les éléments
-  const deleteButton = document.createElement('button');
-  deleteButton.innerText = '🗑️';
-  deleteButton.onclick = () => element.remove();
-  toolbar.appendChild(deleteButton);
-
-  return toolbar;
-}
+  
+  
+  
 
 // Modification de la fonction makeElementDraggable pour ajouter la toolbar
 function makeElementDraggable(element) {
