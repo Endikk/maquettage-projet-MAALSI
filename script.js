@@ -384,7 +384,7 @@ function makeElementDraggable(element) {
 
   // Code existant du drag and drop
   element.onmousedown = function(event) {
-    if (event.target === element) {  // Seulement si on clique sur l'élément lui-même
+    if (event.target === element) {
       let shiftX = event.clientX - element.getBoundingClientRect().left;
       let shiftY = event.clientY - element.getBoundingClientRect().top;
       
@@ -403,12 +403,16 @@ function makeElementDraggable(element) {
         moveAt(event.pageX, event.pageY);
       }
 
+      // Ajouter l'écouteur de mouvement
       document.addEventListener('mousemove', onMouseMove);
 
-      element.onmouseup = function() {
+      // Modifier cette partie pour gérer le relâchement de la souris sur le document
+      function onMouseUp() {
         document.removeEventListener('mousemove', onMouseMove);
-        element.onmouseup = null;
-      };
+        document.removeEventListener('mouseup', onMouseUp);
+      }
+      
+      document.addEventListener('mouseup', onMouseUp);
     }
   };
 
