@@ -143,6 +143,8 @@ function addLocation() {
 
 // Copiez ici le reste de votre code existant...
 
+// Copiez ici le reste de votre code existant...
+
 // Fonction d'export pour générer un fichier HTML/CSS à partir de la maquette
 function exportToHTML() {
   const canvas = document.getElementById("canvas");
@@ -150,16 +152,32 @@ function exportToHTML() {
 
   // Rassemble les styles en CSS pour chaque élément
   let cssContent = `
-    .canvas {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      overflow: hidden;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       background-color: #f4f4f4;
+      height: 100vh;
+      margin: 0;
+    }
+    .canvas {
+      width: 80vw;
+      height: 60vh;
+      position: relative;
+      border: 2px dashed #ccc;
+      background-color: #fff;
+      overflow: hidden;
     }
     .element {
       position: absolute;
       transition: transform 0.2s ease;
+      cursor: move;
     }
   `;
 
@@ -179,10 +197,11 @@ function exportToHTML() {
         height: ${computedStyle.height};
         background-color: ${computedStyle.backgroundColor || "transparent"};
         font-size: ${computedStyle.fontSize || "inherit"};
+        color: ${computedStyle.color || "inherit"};
       }
     `;
 
-    // Ajoute l'élément HTML avec sa classe unique
+    // Ajoute l'élément HTML avec une classe unique
     const clonedElement = element.cloneNode(true);
     clonedElement.classList.add(`element-${index}`);
     clonedElement.classList.remove("element");
@@ -191,7 +210,7 @@ function exportToHTML() {
 
   htmlContent += `</div>`;
 
-  // Construit le contenu complet du fichier HTML
+  // Construit le contenu complet du fichier HTML avec le CSS intégré
   const fullHTML = `
 <!DOCTYPE html>
 <html lang="fr">
